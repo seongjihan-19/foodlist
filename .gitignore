@@ -1,0 +1,5 @@
+node_modules
+dist
+# 키가 들어 있는 환경 파일
+.env.local
+.env.*.local
