@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { initConnection, usesEnvFile, canWrite, disconnect, fetchProducts, deleteProduct } from './supabase.js'
+import { initConnection, isDeployed, usesEnvFile, canWrite, disconnect, fetchProducts, deleteProduct } from './supabase.js'
 import { CATEGORIES, ALLERGEN_STATUSES } from './constants.js'
 import ProductTable from './components/ProductTable.jsx'
 import ProductDetail from './components/ProductDetail.jsx'
@@ -84,7 +84,10 @@ export default function App() {
     setConnected(false)
   }
 
-  if (!connected) return <ConnectionSetup onConnected={() => setConnected(true)} />
+  // 배포 사이트에는 연결 입력 화면을 띄우지 않는다 (공개 페이지에서 키를 입력받지 않기 위해)
+  if (!connected) {
+    return isDeployed ? <DeployConfigMissing /> : <ConnectionSetup onConnected={() => setConnected(true)} />
+  }
 
   // service_role 키 없이 anon 키만 있으면 추가·삭제 버튼을 숨긴다
   const writable = canWrite()
@@ -137,6 +140,20 @@ export default function App() {
           onCreated={handleCreated}
         />
       )}
+    </div>
+  )
+}
+
+// 배포 사이트에 환경 변수가 없을 때 보이는 안내 (관리자용)
+function DeployConfigMissing() {
+  return (
+    <div className="app setup">
+      <h1>상품 관리</h1>
+      <p className="message error">사이트 설정이 아직 끝나지 않았습니다.</p>
+      <p className="hint">
+        관리자: Vercel 프로젝트 → Settings → Environment Variables에 <code>VITE_SUPABASE_URL</code>과{' '}
+        <code>VITE_SUPABASE_ANON_KEY</code>를 추가한 뒤 다시 배포하세요. service_role 키는 넣지 않습니다.
+      </p>
     </div>
   )
 }

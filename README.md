@@ -37,6 +37,18 @@ Supabase의 상품 DB(`docs/dummy/schema.sql` 구조)를 조회 · 검색 · 추
 - anon 키를 비우면 조회도 service_role 키로 한다
 - Session pooler 같은 DB 연결 문자열(`postgresql://...`)은 이 앱에서 쓰지 않는다
 
+## Vercel 배포 (공개 · 읽기 전용)
+
+배포된 사이트는 누구나 접속할 수 있으므로 **조회 · 검색만** 된다. 추가 · 삭제는 로컬(`상품관리 실행.bat`)에서 한다.
+
+1. Vercel 프로젝트 → Settings → Environment Variables에 두 개만 추가
+   - `VITE_SUPABASE_URL`: Project URL
+   - `VITE_SUPABASE_ANON_KEY`: anon 키
+2. Deployments → 최신 배포 `⋯` → Redeploy (환경 변수는 다시 빌드해야 반영됨)
+
+- service_role 키는 Vercel에 넣지 않는다. 넣더라도 배포 빌드에는 포함되지 않게 코드에서 막아 두었다
+- 배포 사이트에는 연결 입력 화면이 없다. 환경 변수가 없으면 "사이트 설정이 아직 끝나지 않았습니다" 안내만 나온다
+
 ## 기능
 
 - 조회: 목록에서 상품을 누르면 상세 패널에 보관기간 · 안내사항 · 알레르기가 나온다
@@ -49,6 +61,6 @@ Supabase의 상품 DB(`docs/dummy/schema.sql` 구조)를 조회 · 검색 · 추
 - `service_role` 키는 RLS를 무시하고 DB 전체를 읽고 쓸 수 있다. 키를 공유하지 않는다
 - 화면에서 넣은 키는 이 브라우저의 저장소(localStorage)에 남는다. 다른 사람과 같이 쓰는 컴퓨터라면 사용 후 **연결 해제**를 누른다
 - 새 형식 키(`sb_secret_...`, `sb_publishable_...`)는 쓸 수 없다. Legacy 탭의 service_role 키를 쓴다
-- `npm run build` 결과물은 배포하지 않는다 (`.env.local`을 쓴 경우 키가 그대로 들어감)
+- 배포 빌드(`npm run build`)에는 URL · anon 키만 들어가고 service_role 키는 들어가지 않는다
 - 추가는 상품 → 하위 행 순서로 저장하고, 하위 행 저장이 실패하면 상품을 지워 되돌린다
 - 목록 값(카테고리 · 보관방식 등)은 `src/constants.js`에 있다. `schema.sql`의 CHECK 제약을 바꾸면 여기도 같이 바꾼다

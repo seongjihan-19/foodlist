@@ -109,3 +109,4 @@ legend { font-weight: 600; font-size: 14px; padding: 0 4px; }
 .setup-form label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; }
 .setup-form .message { margin: 0; }
 .hint { font-size: 12px; font-weight: 400; color: var(--muted); margin: 0; line-height: 1.5; }
+.setup .hint code { background: #eef0f3; padding: 1px 5px; border-radius: 4px; }

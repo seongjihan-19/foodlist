@@ -1,11 +1,14 @@
 import { createClient } from '@supabase/supabase-js'
 
 // 연결 정보는 .env.local이 있으면 그것을, 없으면 화면에서 입력해 브라우저에 저장한 값을 쓴다
+// 배포 빌드(Vercel 등)는 공개 사이트이므로 환경 변수의 URL · anon 키만 쓰는 읽기 전용으로 동작한다
 const STORAGE_KEY = 'product-admin.connection'
+export const isDeployed = import.meta.env.PROD
 const envConfig = {
   url: import.meta.env.VITE_SUPABASE_URL,
   anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-  serviceKey: import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY,
+  // DEV일 때만 읽어서, 배포 빌드에는 service_role 키가 아예 들어가지 않게 한다
+  serviceKey: import.meta.env.DEV ? import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY : undefined,
 }
 
 // 조회는 anon 키(RLS 읽기 정책), 추가·삭제는 service_role 키로 한다
@@ -40,6 +43,8 @@ export function initConnection() {
     readClient = anonKey ? makeClient({ url, key: anonKey }, 'read') : writeClient
     return true
   }
+  // 배포 사이트에서는 브라우저에 저장된 키(service_role일 수 있음)를 쓰지 않는다
+  if (isDeployed) return false
   const saved = readSaved()
   if (!saved) return false
   readClient = writeClient = makeClient(saved)
